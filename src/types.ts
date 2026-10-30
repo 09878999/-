@@ -1,5 +1,5 @@
 export type Tab = 'focus' | 'records' | 'insights';
-export type TimerAnimation = 'soft' | 'flip' | 'pulse' | 'none';
+export type TimerAnimation = 'soft' | 'sweep' | 'pulse' | 'none';
 
 export interface Subject {
   id: string;

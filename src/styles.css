@@ -270,17 +270,16 @@ h1, h2, h3, p { margin: 0; }
   animation: none !important;
 }
 .digit-animation-soft .timer-glyph:not(.is-colon) { animation: digit-soft 250ms var(--ease) both; }
-.digit-animation-flip .timer-glyph:not(.is-colon) { animation: digit-flip 320ms cubic-bezier(0.2, 0.78, 0.2, 1) both; }
+.digit-animation-sweep .timer-glyph:not(.is-colon) { animation: digit-sweep 280ms var(--ease) both; }
 .digit-animation-pulse .timer-glyph:not(.is-colon) { animation: digit-pulse 280ms var(--ease) both; }
 .digit-animation-none .timer-glyph { animation: none; }
 @keyframes digit-soft {
   from { opacity: 0.2; filter: blur(2px); transform: translateY(0.16em); }
   to { opacity: 1; filter: blur(0); transform: translateY(0); }
 }
-@keyframes digit-flip {
-  from { opacity: 0.28; transform: translateY(-0.06em) rotateX(72deg); }
-  65% { opacity: 1; }
-  to { opacity: 1; transform: translateY(0) rotateX(0); }
+@keyframes digit-sweep {
+  from { opacity: 0.18; filter: blur(1px); transform: translateX(-0.16em) skewX(-3deg); }
+  to { opacity: 1; filter: blur(0); transform: translateX(0) skewX(0); }
 }
 @keyframes digit-pulse {
   from { opacity: 0.4; transform: scale(0.84); }
@@ -802,7 +801,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 .animation-option strong { font-size: 10px; font-weight: 560; }
 .animation-option small { color: var(--faint); font-size: 8px; white-space: nowrap; }
 .animation-option.is-selected small { color: rgba(184, 230, 201, 0.55); }
-.preview-flip { transform: perspective(60px) rotateX(5deg); }
+.preview-sweep { transform: translateX(-1px); }
 .preview-pulse { letter-spacing: 0.02em; }
 .preview-none { opacity: 0.62; }
 .animation-note { margin-top: 12px; color: var(--faint); font-size: 9px; }
@@ -821,11 +820,7 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   background:
     radial-gradient(circle at 50% 42%, rgba(136, 188, 153, 0.07), transparent 30%),
     linear-gradient(150deg, #080b0d 0%, #0b1012 50%, #060809 100%);
-  padding:
-    max(25px, env(safe-area-inset-top))
-    max(30px, env(safe-area-inset-right))
-    max(24px, env(safe-area-inset-bottom))
-    max(30px, env(safe-area-inset-left));
+  padding: 0;
   isolation: isolate;
   animation: immersive-in 560ms var(--ease) both;
 }
@@ -855,35 +850,61 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   height: min(64vw, 980px);
   background: radial-gradient(circle, rgba(57, 92, 70, 0.12), transparent 66%);
 }
+.immersive-tap-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: default;
+}
 .immersive-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 22px;
+  gap: 14px;
+  padding:
+    max(22px, env(safe-area-inset-top))
+    max(28px, env(safe-area-inset-right))
+    0
+    max(28px, env(safe-area-inset-left));
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 220ms ease, transform 220ms var(--ease);
 }
-.immersive-brand {
+.immersive-header.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.immersive-session-meta {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  overflow: hidden;
   color: var(--text-soft);
-  font-family: "Songti SC", "STSong", serif;
-  font-size: 15px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.immersive-brand .brand-mark { width: 30px; height: 30px; }
-.immersive-brand .brand-mark span { width: 6px; height: 6px; transform: translateY(3px); }
-.immersive-brand .brand-mark::after { height: 7px; transform: translateY(-5px); }
 .immersive-status {
   display: inline-flex;
   align-items: center;
   gap: 9px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.022);
+  background: rgba(8, 11, 13, 0.72);
   padding: 8px 13px;
   color: var(--muted);
   font-size: 10px;
   letter-spacing: 0.1em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .immersive-status .status-dot { width: 5px; height: 5px; background: var(--faint); }
 .immersive-status.is-running { border-color: rgba(184, 230, 201, 0.14); color: var(--accent); }
@@ -896,49 +917,54 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   gap: 8px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(8, 11, 13, 0.72);
   padding: 0 14px;
   color: var(--muted);
   cursor: pointer;
   font-size: 10px;
   letter-spacing: 0.04em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
 }
-.immersive-exit:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.05); color: var(--text-soft); }
+.immersive-exit:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.06); color: var(--text-soft); }
 .immersive-center {
+  position: relative;
+  z-index: 2;
   display: flex;
-  min-height: 0;
-  flex: 1;
+  height: 100%;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  padding: 20px 0;
+  padding: 0;
+  pointer-events: none;
 }
-.immersive-subject {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  border: 1px solid rgba(184, 230, 201, 0.13);
-  border-radius: 999px;
-  background: rgba(184, 230, 201, 0.055);
-  padding: 8px 13px;
-  color: var(--accent-bright);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-}
-.immersive-caption { margin-top: 21px; color: var(--faint); font-family: "Songti SC", "STSong", serif; font-size: 12px; letter-spacing: 0.16em; }
 .immersive-timer {
   align-self: auto;
-  margin: 13px 0 0;
-  font-size: clamp(82px, 15.5vw, 260px);
+  margin: 0;
+  font-size: clamp(86px, 16vw, 280px);
   text-shadow: 0 18px 90px rgba(0, 0, 0, 0.52);
 }
 .immersive-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 13px;
+  gap: 12px;
+  padding:
+    0
+    max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(24px, env(safe-area-inset-left));
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 220ms ease, transform 220ms var(--ease);
 }
+.immersive-footer.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .immersive-actions { display: flex; align-items: center; justify-content: center; gap: 13px; }
 .immersive-action {
   display: inline-flex;
@@ -953,24 +979,17 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   transition: background 180ms ease, border-color 180ms ease, transform 180ms var(--ease);
 }
 .immersive-action:active { transform: scale(0.98); }
-.immersive-action.secondary { border: 1px solid var(--border-strong); background: rgba(255, 255, 255, 0.04); color: var(--text-soft); }
-.immersive-action.secondary:hover { background: rgba(255, 255, 255, 0.075); }
+.immersive-action.secondary { border: 1px solid var(--border-strong); background: rgba(17, 22, 25, 0.88); color: var(--text-soft); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.immersive-action.secondary:hover { background: rgba(255, 255, 255, 0.08); }
 .immersive-action.primary { background: var(--accent); box-shadow: 0 18px 48px rgba(118, 178, 140, 0.13); color: var(--accent-ink); font-weight: 650; }
 .immersive-action.primary:hover { background: var(--accent-bright); }
-.immersive-discard { display: inline-flex; align-items: center; gap: 6px; background: transparent; padding: 5px 8px; color: var(--faint); cursor: pointer; font-size: 10px; transition: color 180ms ease; }
+.immersive-discard { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(8, 11, 13, 0.6); padding: 7px 10px; color: var(--muted); cursor: pointer; font-size: 10px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: color 180ms ease; }
 .immersive-discard:hover { color: var(--danger); }
-.immersive-hint { color: rgba(133, 142, 139, 0.55); font-size: 9px; letter-spacing: 0.08em; }
+.immersive-hint { border-radius: 999px; background: rgba(8, 11, 13, 0.5); padding: 5px 9px; color: rgba(133, 142, 139, 0.66); font-size: 9px; letter-spacing: 0.08em; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 
 @media (max-width: 820px) {
   .animation-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .immersive-focus {
-    padding:
-      max(20px, env(safe-area-inset-top))
-      max(22px, env(safe-area-inset-right))
-      max(22px, env(safe-area-inset-bottom))
-      max(22px, env(safe-area-inset-left));
-  }
-  .immersive-timer { font-size: clamp(78px, 16vw, 154px); }
+  .immersive-timer { font-size: clamp(78px, 16vw, 168px); }
 }
 @media (max-width: 560px) {
   .timer-top-meta { gap: 7px; }
@@ -978,10 +997,8 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   .fullscreen-button { width: 36px; justify-content: center; padding: 0; }
   .immersive-header { grid-template-columns: 1fr auto; }
   .immersive-status { display: none; }
-  .immersive-brand { font-size: 14px; }
   .immersive-exit { min-width: 40px; padding: 0 11px; }
   .immersive-exit span { display: none; }
-  .immersive-caption { margin-top: 16px; }
   .immersive-timer { font-size: clamp(64px, 17vw, 112px); }
   .immersive-actions { width: 100%; gap: 9px; }
   .immersive-action { min-width: 0; height: 52px; flex: 1; }

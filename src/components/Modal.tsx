@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -26,7 +27,7 @@ export function Modal({ open, title, eyebrow, children, onClose, className = '' 
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className={`modal-card ${className}`} role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <header className="modal-header">
@@ -40,7 +41,8 @@ export function Modal({ open, title, eyebrow, children, onClose, className = '' 
         </header>
         {children}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -59,68 +59,100 @@ function ImmersiveFocus({
   onDiscard,
   onExit,
 }: ImmersiveFocusProps) {
+  const [controlsVisible, setControlsVisible] = useState(false);
+
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
+    const appShell = document.querySelector<HTMLElement>('.app-shell');
+    const wasInert = appShell?.inert ?? false;
     document.body.style.overflow = 'hidden';
+    if (appShell) appShell.inert = true;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onExit();
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
+      if (appShell) appShell.inert = wasInert;
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [onExit]);
+
+  useEffect(() => {
+    if (!controlsVisible) return;
+    const hideTimer = window.setTimeout(() => setControlsVisible(false), 5000);
+    return () => window.clearTimeout(hideTimer);
+  }, [controlsVisible]);
+
+  const controlTabIndex = controlsVisible ? 0 : -1;
 
   return (
     <section className="immersive-focus" aria-label="全屏专注模式" data-testid="immersive-focus">
       <div className="immersive-glow immersive-glow-one" />
       <div className="immersive-glow immersive-glow-two" />
 
-      <header className="immersive-header">
-        <div className="immersive-brand">
-          <div className="brand-mark"><span /></div>
-          <span>静时</span>
+      <button
+        type="button"
+        className="immersive-tap-surface"
+        onClick={() => setControlsVisible((visible) => !visible)}
+        aria-label={controlsVisible ? '隐藏全屏控制' : '显示全屏控制'}
+      />
+
+      <header className={`immersive-header${controlsVisible ? ' is-visible' : ''}`} aria-hidden={!controlsVisible}>
+        <div className="immersive-session-meta">
+          <span className="subject-dot" style={{ backgroundColor: subject?.color ?? '#8d969e' }} />
+          {subject?.name ?? '专注'}
         </div>
         <div className={`immersive-status${running ? ' is-running' : ''}`}>
           <span className="status-dot" />
           {running ? '正在专注' : '已暂停'}
         </div>
-        <button type="button" className="immersive-exit" onClick={onExit} aria-label="退出全屏，继续计时">
+        <button
+          type="button"
+          className="immersive-exit"
+          onClick={onExit}
+          aria-label="退出全屏，继续计时"
+          tabIndex={controlTabIndex}
+        >
           <Minimize2 size={18} />
           <span>退出全屏</span>
         </button>
       </header>
 
       <div className="immersive-center">
-        <div className="immersive-subject">
-          <span className="subject-dot" style={{ backgroundColor: subject?.color ?? '#8d969e' }} />
-          {subject?.name ?? '专注'}
-        </div>
-        <p className="immersive-caption">把注意力留在此刻</p>
         <AnimatedTimer elapsedMs={elapsedMs} animation={timerAnimation} className="immersive-timer" />
       </div>
 
-      <footer className="immersive-footer">
+      <footer className={`immersive-footer${controlsVisible ? ' is-visible' : ''}`} aria-hidden={!controlsVisible}>
         <div className="immersive-actions">
-          <button type="button" className="immersive-action secondary" onClick={running ? onPause : onResume}>
+          <button
+            type="button"
+            className="immersive-action secondary"
+            onClick={running ? onPause : onResume}
+            tabIndex={controlTabIndex}
+          >
             {running ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
             {running ? '暂停' : '继续'}
           </button>
-          <button type="button" className="immersive-action primary" onClick={onFinish} disabled={elapsedMs < 1000}>
+          <button
+            type="button"
+            className="immersive-action primary"
+            onClick={onFinish}
+            disabled={elapsedMs < 1000}
+            tabIndex={controlTabIndex}
+          >
             <Square size={19} fill="currentColor" />
             结束并记录
           </button>
         </div>
-        <button type="button" className="immersive-discard" onClick={onDiscard}>
+        <button type="button" className="immersive-discard" onClick={onDiscard} tabIndex={controlTabIndex}>
           <Trash2 size={14} /> 放弃本次
         </button>
-        <p className="immersive-hint">真实时间计时 · 暂停不计入时长</p>
+        <p className="immersive-hint">轻点屏幕显示或隐藏控制</p>
       </footer>
     </section>
   );
 }
-
 export function FocusPage({
   subjects,
   sessions,

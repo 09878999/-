@@ -7,13 +7,13 @@ describe('timer animation preference', () => {
   });
 
   it('saves a valid animation preference', () => {
-    saveTimerAnimation('flip');
-    expect(localStorage.getItem(TIMER_ANIMATION_STORAGE_KEY)).toBe('flip');
-    expect(readTimerAnimation()).toBe('flip');
+    saveTimerAnimation('sweep');
+    expect(localStorage.getItem(TIMER_ANIMATION_STORAGE_KEY)).toBe('sweep');
+    expect(readTimerAnimation()).toBe('sweep');
   });
 
   it('falls back safely when stored data is invalid', () => {
-    localStorage.setItem(TIMER_ANIMATION_STORAGE_KEY, 'spin');
+    localStorage.setItem(TIMER_ANIMATION_STORAGE_KEY, 'flip');
     expect(readTimerAnimation()).toBe('soft');
   });
 });

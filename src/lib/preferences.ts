@@ -8,7 +8,7 @@ export const TIMER_ANIMATION_OPTIONS: Array<{
   description: string;
 }> = [
   { id: 'soft', label: '轻落', description: '柔和上浮' },
-  { id: 'flip', label: '翻页', description: '翻页钟质感' },
+  { id: 'sweep', label: '滑入', description: '横向轻滑' },
   { id: 'pulse', label: '呼吸', description: '轻微缩放' },
   { id: 'none', label: '静止', description: '不播放动画' },
 ];
