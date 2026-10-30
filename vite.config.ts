@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
         name: '静时 · 学习专注记录',
         lang: 'zh-CN',
@@ -37,5 +37,3 @@ export default defineConfig({
     css: true
   }
 });
-
-
