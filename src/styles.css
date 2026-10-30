@@ -192,6 +192,8 @@ h1, h2, h3, p { margin: 0; }
     linear-gradient(160deg, rgba(16, 21, 24, 0.96), rgba(10, 14, 16, 0.98));
   box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.025);
   padding: clamp(26px, 3.2vw, 42px);
+  container-type: inline-size;
+  container-name: timer-card;
   isolation: isolate;
 }
 .timer-card::before {
@@ -247,7 +249,9 @@ h1, h2, h3, p { margin: 0; }
   justify-content: center;
   margin: auto 0;
   font-family: "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Courier New", monospace;
-  font-size: clamp(64px, 10.5vw, 142px);
+  width: 100%;
+  max-width: 100%;
+  font-size: clamp(48px, 20cqi, 136px);
   font-weight: 300;
   line-height: 1;
   text-align: center;
@@ -265,7 +269,7 @@ h1, h2, h3, p { margin: 0; }
   animation-fill-mode: both;
 }
 .timer-glyph.is-colon {
-  width: 0.26em;
+  width: 0.46em;
   color: rgba(237, 240, 235, 0.72);
   animation: none !important;
 }
@@ -287,7 +291,7 @@ h1, h2, h3, p { margin: 0; }
 }
 /* Flip clock display */
 .flip-clock {
-  --flip-font: clamp(52px, 7.2vw, 116px);
+  --flip-font: clamp(36px, 20cqi, 116px);
   display: grid;
   width: min(100%, 740px);
   align-self: center;
@@ -773,6 +777,10 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   .app-shell { grid-template-columns: 204px minmax(0, 1fr); }
   .app-sidebar { padding-right: 15px; padding-left: 15px; }
   .focus-layout { grid-template-columns: minmax(0, 1fr) 260px; gap: 24px; }
+  .compact-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .compact-heading .date-caption { padding-bottom: 0; }
+  .subject-pills { gap: 7px; }
+  .subject-pill { min-height: 35px; padding: 0 11px; font-size: 11px; }
   .today-card { padding: 21px; }
   .insights-lower-grid { grid-template-columns: 1fr; }
   .heatmap-grid { grid-template-rows: repeat(7, 12px); }
@@ -814,7 +822,6 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   .page-heading { align-items: flex-start; flex-direction: column; gap: 16px; margin-bottom: 25px; }
   .date-caption { padding-bottom: 0; }
   .timer-card { min-height: min(540px, 66vh); }
-  .timer-display { font-size: clamp(60px, 15vw, 100px); }
   .timer-idle-controls .subject-pills { max-width: 500px; }
   .record-summary { grid-template-columns: 1fr 1fr; gap: 20px; }
   .summary-divider { display: none; }
@@ -828,7 +835,6 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
   .app-main { padding-right: 17px; padding-left: 17px; }
   .page-heading h1 { font-size: 25px; }
   .timer-card { min-height: 470px; border-radius: 25px; padding: 21px; }
-  .timer-display { font-size: clamp(52px, 17vw, 78px); }
   .round-action { min-width: 128px; }
   .focus-notes { align-items: flex-start; flex-direction: column; gap: 8px; }
   .focus-sidebar { display: flex; }
