@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
-import { Check, Download, HardDrive, Plus, Settings2, Upload, X } from 'lucide-react';
+import { Check, Download, HardDrive, Plus, Settings2, Sparkles, Upload, X } from 'lucide-react';
 import { backupFilename, createBackup, parseBackup } from '../lib/backup';
-import type { BackupData, StudySession, Subject } from '../types';
+import { TIMER_ANIMATION_OPTIONS } from '../lib/preferences';
+import type { BackupData, StudySession, Subject, TimerAnimation } from '../types';
 import { Modal } from './Modal';
 
 interface SettingsPanelProps {
@@ -13,6 +14,8 @@ interface SettingsPanelProps {
   onRenameSubject: (id: string, name: string) => Promise<void>;
   onImportBackup: (backup: BackupData) => Promise<void>;
   onClearSessions: () => Promise<void>;
+  timerAnimation: TimerAnimation;
+  onTimerAnimationChange: (animation: TimerAnimation) => void;
 }
 
 export function SettingsPanel({
@@ -24,6 +27,8 @@ export function SettingsPanel({
   onRenameSubject,
   onImportBackup,
   onClearSessions,
+  timerAnimation,
+  onTimerAnimationChange,
 }: SettingsPanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [newSubject, setNewSubject] = useState('');
@@ -190,6 +195,33 @@ export function SettingsPanel({
               <Plus size={17} /> 添加
             </button>
           </form>
+        </section>
+        <section className="settings-section">
+          <div className="settings-section-heading">
+            <div>
+              <h3>数字动效</h3>
+              <p>选择秒数变化时的数字呈现方式。</p>
+            </div>
+            <Sparkles size={18} />
+          </div>
+
+          <div className="animation-options" role="radiogroup" aria-label="数字跳动效果">
+            {TIMER_ANIMATION_OPTIONS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                role="radio"
+                aria-checked={timerAnimation === option.id}
+                className={`animation-option${timerAnimation === option.id ? ' is-selected' : ''}`}
+                onClick={() => onTimerAnimationChange(option.id)}
+              >
+                <span className={`animation-preview preview-${option.id}`}>88:88</span>
+                <strong>{option.label}</strong>
+                <small>{option.description}</small>
+              </button>
+            ))}
+          </div>
+          <p className="animation-note">设置会立即保存，并用于普通计时与全屏计时。</p>
         </section>
 
         <section className="settings-section">

@@ -8,7 +8,8 @@ import { SessionForm, type SessionFormMode, type SessionFormValue } from './comp
 import { SettingsPanel } from './components/SettingsPanel';
 import { useFocusTimer } from './hooks/useFocusTimer';
 import { useLearningData } from './hooks/useLearningData';
-import type { StudySession, Tab } from './types';
+import { readTimerAnimation, saveTimerAnimation } from './lib/preferences';
+import type { StudySession, Tab, TimerAnimation } from './types';
 import { roundMinutes } from './lib/time';
 
 interface FormDialogState {
@@ -25,6 +26,7 @@ const NAV_ITEMS: Array<{ tab: Tab; label: string; icon: typeof Timer }> = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('focus');
+  const [timerAnimation, setTimerAnimation] = useState<TimerAnimation>(readTimerAnimation);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [formDialog, setFormDialog] = useState<FormDialogState | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<StudySession | null>(null);
@@ -33,6 +35,11 @@ export default function App() {
   const data = useLearningData();
 
   const defaultSubjectId = timer.activeSession?.subjectId ?? data.subjects[0]?.id ?? '';
+
+  function updateTimerAnimation(animation: TimerAnimation) {
+    saveTimerAnimation(animation);
+    setTimerAnimation(animation);
+  }
 
   function openFinishDialog() {
     if (!timer.activeSession) return;
@@ -173,6 +180,7 @@ export default function App() {
             activeSession={timer.activeSession}
             elapsedMs={timer.elapsedMs}
             running={timer.running}
+            timerAnimation={timerAnimation}
             onStart={timer.start}
             onPause={timer.pause}
             onResume={timer.resume}
@@ -238,6 +246,8 @@ export default function App() {
         onRenameSubject={data.renameSubject}
         onImportBackup={data.importBackup}
         onClearSessions={data.clearSessions}
+        timerAnimation={timerAnimation}
+        onTimerAnimationChange={updateTimerAnimation}
       />
     </div>
   );
