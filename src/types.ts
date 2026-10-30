@@ -1,4 +1,4 @@
-export type Tab = 'focus' | 'records' | 'insights';
+export type Tab = 'focus' | 'records' | 'goals' | 'insights';
 export type TimerAnimation = 'soft' | 'sweep' | 'pulse' | 'flipclock' | 'none';
 
 export interface Subject {
@@ -17,6 +17,14 @@ export interface StudySession {
   createdAt: number;
 }
 
+export interface Goal {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface ActiveSession {
   subjectId: string;
   startedAt: number;
@@ -26,10 +34,11 @@ export interface ActiveSession {
 
 export interface BackupData {
   app: 'still-focus';
-  version: 1;
+  version: 2;
   exportedAt: string;
   subjects: Subject[];
   sessions: StudySession[];
+  goals: Goal[];
 }
 
 export const SUBJECT_COLORS = [

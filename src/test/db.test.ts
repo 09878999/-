@@ -25,10 +25,11 @@ describe('local database', () => {
     await replaceDatabase(
       [{ id: 'custom', name: '设计', color: '#fff', sortOrder: 0, createdAt: 1 }],
       [{ id: 'session', subjectId: 'custom', startedAt: 10, durationMs: 60_000, createdAt: 20 }],
+      [{ id: 'goal', text: '通过英语四级', completed: false, createdAt: 30, updatedAt: 30 }],
     );
     expect(await db.subjects.count()).toBe(1);
     expect((await db.subjects.get('custom'))?.name).toBe('设计');
     expect(await db.sessions.count()).toBe(1);
+    expect((await db.goals.get('goal'))?.text).toBe('通过英语四级');
   });
 });
-

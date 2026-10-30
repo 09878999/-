@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Check, Download, HardDrive, Plus, Settings2, Sparkles, Upload, X } from 'lucide-react';
 import { backupFilename, createBackup, parseBackup } from '../lib/backup';
 import { TIMER_ANIMATION_OPTIONS } from '../lib/preferences';
-import type { BackupData, StudySession, Subject, TimerAnimation } from '../types';
+import type { BackupData, Goal, StudySession, Subject, TimerAnimation } from '../types';
 import { Modal } from './Modal';
 
 interface SettingsPanelProps {
@@ -10,6 +10,7 @@ interface SettingsPanelProps {
   onClose: () => void;
   subjects: Subject[];
   sessions: StudySession[];
+  goals: Goal[];
   onAddSubject: (name: string) => Promise<Subject>;
   onRenameSubject: (id: string, name: string) => Promise<void>;
   onImportBackup: (backup: BackupData) => Promise<void>;
@@ -23,6 +24,7 @@ export function SettingsPanel({
   onClose,
   subjects,
   sessions,
+  goals,
   onAddSubject,
   onRenameSubject,
   onImportBackup,
@@ -73,7 +75,7 @@ export function SettingsPanel({
 
   function handleExport() {
     resetFeedback();
-    const backup = createBackup(subjects, sessions);
+    const backup = createBackup(subjects, sessions, goals);
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
@@ -255,7 +257,7 @@ export function SettingsPanel({
             <div className="restore-confirm">
               <div>
                 <strong>确认恢复？</strong>
-                <p>{pendingBackup.filename} 将替换当前所有科目和记录。</p>
+                <p>{pendingBackup.filename} 将替换当前所有科目、学习记录和目标。</p>
               </div>
               <div className="action-group">
                 <button type="button" className="button button-ghost" onClick={() => setPendingBackup(null)} disabled={busy}>取消</button>

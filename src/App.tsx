@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { BarChart3, BookOpen, Settings2, Timer } from 'lucide-react';
+import { BarChart3, BookOpen, Settings2, Target, Timer } from 'lucide-react';
 import { FocusPage } from './components/FocusPage';
+import { GoalsPage } from './components/GoalsPage';
 import { InsightsPage } from './components/InsightsPage';
 import { RecordsPage } from './components/RecordsPage';
 import { ConfirmDialog } from './components/Modal';
@@ -21,6 +22,7 @@ interface FormDialogState {
 const NAV_ITEMS: Array<{ tab: Tab; label: string; icon: typeof Timer }> = [
   { tab: 'focus', label: '专注', icon: Timer },
   { tab: 'records', label: '记录', icon: BookOpen },
+  { tab: 'goals', label: '目标', icon: Target },
   { tab: 'insights', label: '统计', icon: BarChart3 },
 ];
 
@@ -197,6 +199,15 @@ export default function App() {
             onDelete={setSessionToDelete}
           />
         )}
+        {tab === 'goals' && (
+          <GoalsPage
+            goals={data.goals}
+            onAdd={data.addGoal}
+            onUpdate={data.updateGoal}
+            onToggle={data.toggleGoal}
+            onDelete={data.deleteGoal}
+          />
+        )}
         {tab === 'insights' && <InsightsPage subjects={data.subjects} sessions={data.sessions} />}
       </main>
 
@@ -242,6 +253,7 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         subjects={data.subjects}
         sessions={data.sessions}
+        goals={data.goals}
         onAddSubject={data.addSubject}
         onRenameSubject={data.renameSubject}
         onImportBackup={data.importBackup}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { db, initializeDatabase, replaceDatabase } from '../db';
 import { createId } from '../lib/id';
-import { SUBJECT_COLORS, type BackupData, type StudySession, type Subject } from '../types';
+import { SUBJECT_COLORS, type BackupData, type Goal, type StudySession, type Subject } from '../types';
 
 interface NewSession {
   subjectId: string;
@@ -12,16 +12,19 @@ interface NewSession {
 export function useLearningData() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const [nextSubjects, nextSessions] = await Promise.all([
+    const [nextSubjects, nextSessions, nextGoals] = await Promise.all([
       db.subjects.orderBy('sortOrder').toArray(),
       db.sessions.orderBy('startedAt').reverse().toArray(),
+      db.goals.orderBy('createdAt').reverse().toArray(),
     ]);
     setSubjects(nextSubjects);
     setSessions(nextSessions);
+    setGoals(nextGoals);
   }, []);
 
   useEffect(() => {
@@ -108,9 +111,56 @@ export function useLearningData() {
     [refresh],
   );
 
+  const addGoal = useCallback(
+    async (rawText: string) => {
+      const text = rawText.trim();
+      if (!text) throw new Error('请输入目标内容。');
+      if (text.length > 120) throw new Error('目标内容不能超过 120 个字符。');
+      const timestamp = Date.now();
+      const goal: Goal = {
+        id: createId('goal'),
+        text,
+        completed: false,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+      await db.goals.add(goal);
+      await refresh();
+      return goal;
+    },
+    [refresh],
+  );
+
+  const updateGoal = useCallback(
+    async (id: string, rawText: string) => {
+      const text = rawText.trim();
+      if (!text) throw new Error('请输入目标内容。');
+      if (text.length > 120) throw new Error('目标内容不能超过 120 个字符。');
+      await db.goals.update(id, { text, updatedAt: Date.now() });
+      await refresh();
+    },
+    [refresh],
+  );
+
+  const toggleGoal = useCallback(
+    async (id: string, completed: boolean) => {
+      await db.goals.update(id, { completed, updatedAt: Date.now() });
+      await refresh();
+    },
+    [refresh],
+  );
+
+  const deleteGoal = useCallback(
+    async (id: string) => {
+      await db.goals.delete(id);
+      await refresh();
+    },
+    [refresh],
+  );
+
   const importBackup = useCallback(
     async (backup: BackupData) => {
-      await replaceDatabase(backup.subjects, backup.sessions);
+      await replaceDatabase(backup.subjects, backup.sessions, backup.goals);
       await refresh();
     },
     [refresh],
@@ -124,6 +174,7 @@ export function useLearningData() {
   return {
     subjects,
     sessions,
+    goals,
     loading,
     error,
     addSubject,
@@ -131,9 +182,11 @@ export function useLearningData() {
     addSession,
     updateSession,
     deleteSession,
+    addGoal,
+    updateGoal,
+    toggleGoal,
+    deleteGoal,
     importBackup,
     clearSessions,
   };
 }
-
-

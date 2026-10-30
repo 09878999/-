@@ -1,15 +1,21 @@
 import Dexie, { type EntityTable } from 'dexie';
-import { SUBJECT_COLORS, type StudySession, type Subject } from './types';
+import { SUBJECT_COLORS, type Goal, type StudySession, type Subject } from './types';
 
 export class StillFocusDatabase extends Dexie {
   subjects!: EntityTable<Subject, 'id'>;
   sessions!: EntityTable<StudySession, 'id'>;
+  goals!: EntityTable<Goal, 'id'>;
 
   constructor() {
     super('still-focus-db');
     this.version(1).stores({
       subjects: 'id, sortOrder, createdAt',
       sessions: 'id, subjectId, startedAt, createdAt',
+    });
+    this.version(2).stores({
+      subjects: 'id, sortOrder, createdAt',
+      sessions: 'id, subjectId, startedAt, createdAt',
+      goals: 'id, completed, createdAt',
     });
   }
 }
@@ -34,13 +40,14 @@ export async function initializeDatabase() {
   );
 }
 
-export async function replaceDatabase(subjects: Subject[], sessions: StudySession[]) {
+export async function replaceDatabase(subjects: Subject[], sessions: StudySession[], goals: Goal[]) {
   if (!db.isOpen()) await db.open();
-  await db.transaction('rw', db.subjects, db.sessions, async () => {
+  await db.transaction('rw', db.subjects, db.sessions, db.goals, async () => {
     await db.subjects.clear();
     await db.sessions.clear();
+    await db.goals.clear();
     await db.subjects.bulkAdd(subjects);
     if (sessions.length) await db.sessions.bulkAdd(sessions);
+    if (goals.length) await db.goals.bulkAdd(goals);
   });
 }
-
