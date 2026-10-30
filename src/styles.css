@@ -128,7 +128,7 @@ h1, h2, h3, p { margin: 0; }
   letter-spacing: 0.08em;
 }
 .local-status .status-dot { width: 5px; height: 5px; background: var(--accent); box-shadow: none; }
-.sidebar-settings { padding-left: 8px; }
+.sidebar-settings { position: relative; padding-left: 8px; }
 .app-main {
   height: 100dvh;
   overflow-x: hidden;
@@ -863,7 +863,41 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
 
 .settings-modal { width: min(100%, 680px); }
 .settings-content { display: flex; flex-direction: column; gap: 18px; }
-.settings-section { border: 1px solid var(--border); border-radius: 20px; background: rgba(255, 255, 255, 0.018); padding: 21px; }
+.settings-reminder-dot {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(9, 12, 14, 0.9);
+  border-radius: 50%;
+  background: #d9c5a3;
+  box-shadow: 0 0 10px rgba(217, 197, 163, 0.52);
+}
+.backup-reminder {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 17px;
+  border: 1px solid rgba(217, 197, 163, 0.17);
+  border-radius: 14px;
+  background: rgba(217, 197, 163, 0.055);
+  padding: 13px;
+}
+.backup-reminder-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(217, 197, 163, 0.08);
+  color: #d9c5a3;
+}
+.backup-reminder strong { color: var(--text-soft); font-size: 11px; font-weight: 560; }
+.backup-reminder p { margin-top: 3px; color: var(--faint); font-size: 9px; line-height: 1.55; }
+.backup-reminder .button { min-height: 38px; padding: 0 13px; white-space: nowrap; }
+.backup-last-time { margin-top: 11px; color: var(--faint); font-size: 9px; text-align: right; }.settings-section { border: 1px solid var(--border); border-radius: 20px; background: rgba(255, 255, 255, 0.018); padding: 21px; }
 .settings-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; color: var(--muted); }
 .settings-section-heading h3 { color: var(--text); font-family: "Songti SC", "STSong", serif; font-size: 17px; font-weight: 500; }
 .settings-section-heading p { margin-top: 5px; color: var(--faint); font-size: 10px; }
@@ -1320,4 +1354,10 @@ input[type="date"], input[type="time"] { color-scheme: dark; }
     width: 94vw;
     gap: 7px;
   }
+}
+
+@media (max-width: 560px) {
+  .sidebar-settings .settings-reminder-dot { top: 8px; right: 9px; }
+  .backup-reminder { grid-template-columns: auto minmax(0, 1fr); }
+  .backup-reminder .button { grid-column: 1 / -1; width: 100%; }
 }

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
-import { Check, Download, HardDrive, Plus, Settings2, Sparkles, Upload, X } from 'lucide-react';
+import { AlertTriangle, Check, Download, HardDrive, Plus, Settings2, Sparkles, Upload, X } from 'lucide-react';
 import { backupFilename, createBackup, parseBackup } from '../lib/backup';
+import { formatLastBackupTime } from '../lib/backupReminder';
 import { TIMER_ANIMATION_OPTIONS } from '../lib/preferences';
 import type { BackupData, Goal, StudySession, Subject, TimerAnimation } from '../types';
 import { Modal } from './Modal';
@@ -17,6 +18,9 @@ interface SettingsPanelProps {
   onClearSessions: () => Promise<void>;
   timerAnimation: TimerAnimation;
   onTimerAnimationChange: (animation: TimerAnimation) => void;
+  needsBackup: boolean;
+  lastBackupAt: number | null;
+  onBackupExported: () => void;
 }
 
 export function SettingsPanel({
@@ -31,6 +35,9 @@ export function SettingsPanel({
   onClearSessions,
   timerAnimation,
   onTimerAnimationChange,
+  needsBackup,
+  lastBackupAt,
+  onBackupExported,
 }: SettingsPanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [newSubject, setNewSubject] = useState('');
@@ -83,7 +90,8 @@ export function SettingsPanel({
     anchor.download = backupFilename();
     anchor.click();
     URL.revokeObjectURL(url);
-    setMessage(`已导出 ${sessions.length} 条学习记录。`);
+    onBackupExported();
+    setMessage(`已导出 ${sessions.length} 条学习记录和 ${goals.length} 个目标。`);
   }
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -105,6 +113,7 @@ export function SettingsPanel({
     resetFeedback();
     try {
       await onImportBackup(pendingBackup.data);
+      onBackupExported();
       setPendingBackup(null);
       setMessage(`已从 ${pendingBackup.filename} 恢复备份。`);
     } catch {
@@ -230,10 +239,21 @@ export function SettingsPanel({
           <div className="settings-section-heading">
             <div>
               <h3>数据备份</h3>
-              <p>数据只在这台设备上。建议定期导出备份。</p>
+              <p>数据保存在 iPad 本地；导出的备份会进入“文件”App。</p>
             </div>
             <HardDrive size={18} />
           </div>
+
+          {needsBackup && (
+            <div className="backup-reminder" role="status">
+              <span className="backup-reminder-icon"><AlertTriangle size={18} /></span>
+              <div>
+                <strong>{lastBackupAt === null ? '还没有备份过本地数据' : '已经超过 30 天没有备份'}</strong>
+                <p>清除 Safari 数据或更换网址前，建议先导出一份文件。</p>
+              </div>
+              <button type="button" className="button button-secondary" onClick={handleExport}>立即备份</button>
+            </div>
+          )}
 
           <div className="backup-actions">
             <button type="button" className="backup-action" onClick={handleExport}>
@@ -252,6 +272,8 @@ export function SettingsPanel({
             </button>
             <input ref={fileInputRef} className="visually-hidden" type="file" accept="application/json,.json" onChange={handleFileChange} />
           </div>
+
+          <p className="backup-last-time">上次备份：{formatLastBackupTime(lastBackupAt)}</p>
 
           {pendingBackup && (
             <div className="restore-confirm">

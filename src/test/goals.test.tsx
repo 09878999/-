@@ -31,6 +31,11 @@ describe('goal flow', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(await screen.findByText('雅思 7.0')).toBeInTheDocument();
     expect(await db.goals.count()).toBe(1);
+    expect(document.querySelector('.settings-reminder-dot')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '设置' }));
+    expect(await screen.findByText('还没有备份过本地数据')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '关闭' }));
 
     await user.click(screen.getByRole('button', { name: '标记为已完成' }));
     await waitFor(async () => expect((await db.goals.toArray())[0].completed).toBe(true));
@@ -42,6 +47,7 @@ describe('goal flow', () => {
     await user.clear(textarea);
     await user.type(textarea, '雅思 7.5');
     await user.click(within(dialog).getByRole('button', { name: '保存修改' }));
+    await waitFor(async () => expect((await db.goals.toArray())[0].text).toBe('雅思 7.5'));
     expect(await screen.findByText('雅思 7.5')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: '删除目标' }));

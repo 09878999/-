@@ -10,8 +10,9 @@ import { SessionForm, type SessionFormMode, type SessionFormValue } from './comp
 import { SettingsPanel } from './components/SettingsPanel';
 import { useFocusTimer } from './hooks/useFocusTimer';
 import { useLearningData } from './hooks/useLearningData';
+import { readLastBackupAt, recordBackupTime, shouldRemindBackup } from './lib/backupReminder';
 import { readTimerAnimation, saveTimerAnimation } from './lib/preferences';
-import type { StudySession, Tab, TimerAnimation } from './types';
+import type { BackupData, StudySession, Tab, TimerAnimation } from './types';
 import { roundMinutes } from './lib/time';
 
 interface FormDialogState {
@@ -30,6 +31,7 @@ const NAV_ITEMS: Array<{ tab: Tab; label: string; icon: typeof Timer }> = [
 export default function App() {
   const [tab, setTab] = useState<Tab>('focus');
   const [timerAnimation, setTimerAnimation] = useState<TimerAnimation>(readTimerAnimation);
+  const [lastBackupAt, setLastBackupAt] = useState<number | null>(readLastBackupAt);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [formDialog, setFormDialog] = useState<FormDialogState | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<StudySession | null>(null);
@@ -38,6 +40,17 @@ export default function App() {
   const data = useLearningData();
 
   const defaultSubjectId = timer.activeSession?.subjectId ?? data.subjects[0]?.id ?? '';
+  const hasUserData = data.sessions.length > 0 || data.goals.length > 0;
+  const needsBackup = shouldRemindBackup(hasUserData, lastBackupAt);
+
+  function markBackupComplete() {
+    setLastBackupAt(recordBackupTime());
+  }
+
+  async function importBackup(backup: BackupData) {
+    await data.importBackup(backup);
+    markBackupComplete();
+  }
 
   function updateTimerAnimation(animation: TimerAnimation) {
     saveTimerAnimation(animation);
@@ -168,8 +181,14 @@ export default function App() {
             <span className="status-dot" />
             <span>本地存储</span>
           </div>
-          <button type="button" className="nav-item sidebar-settings" onClick={() => setSettingsOpen(true)}>
+          <button
+            type="button"
+            className={`nav-item sidebar-settings${needsBackup ? ' has-backup-reminder' : ''}`}
+            onClick={() => setSettingsOpen(true)}
+            title={needsBackup ? '建议备份本地数据' : undefined}
+          >
             <Settings2 size={20} strokeWidth={1.7} />
+            {needsBackup && <span className="settings-reminder-dot" aria-hidden="true" />}
             <span className="nav-label">设置</span>
           </button>
         </div>
@@ -257,10 +276,13 @@ export default function App() {
         goals={data.goals}
         onAddSubject={data.addSubject}
         onRenameSubject={data.renameSubject}
-        onImportBackup={data.importBackup}
+        onImportBackup={importBackup}
         onClearSessions={data.clearSessions}
         timerAnimation={timerAnimation}
         onTimerAnimationChange={updateTimerAnimation}
+        needsBackup={needsBackup}
+        lastBackupAt={lastBackupAt}
+        onBackupExported={markBackupComplete}
       />
     </div>
   );
