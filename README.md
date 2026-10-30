@@ -27,13 +27,22 @@ pnpm test
 pnpm build
 ```
 
+## 免费部署到 GitHub Pages
+
+项目已包含 `.github/workflows/deploy.yml`，每次推送到 `master` 都会先运行测试和生产构建，再自动部署。
+
+1. 在 GitHub 创建一个公开仓库并推送本项目。
+2. 打开仓库的 **Settings → Pages**。
+3. 在 **Build and deployment → Source** 中选择 **GitHub Actions**。
+4. 等待 Actions 完成，访问部署地址。
+
 ## 安装到 iPad
 
-1. 将 `dist/` 部署到任意免费静态托管服务。
-2. 在 iPad Safari 中打开站点。
-3. 点击分享按钮，选择“添加到主屏幕”。
+1. 用 iPad Safari 打开 GitHub Pages 地址。
+2. 点击分享按钮，选择“添加到主屏幕”。
+3. 之后可从主屏幕全屏打开，并支持离线使用。
 
-支持部署到 GitHub Pages、Cloudflare Pages 等静态托管。构建资源使用相对路径，可部署在子路径下。
+构建资源使用相对路径，GitHub Pages 的项目子路径也能正常加载。
 
 ## 数据说明
 
