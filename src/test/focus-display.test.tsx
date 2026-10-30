@@ -16,6 +16,20 @@ describe('focus display experience', () => {
     await db.delete();
   });
 
+  it('offers the reference-style flip clock as a selectable display', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findByRole('button', { name: /开始专注/ });
+    await user.click(screen.getByRole('button', { name: '设置' }));
+    await user.click(await screen.findByRole('radio', { name: /翻页钟/ }));
+    await user.click(screen.getByRole('button', { name: '关闭' }));
+    await user.click(screen.getByRole('button', { name: /开始专注/ }));
+
+    const immersive = await screen.findByTestId('immersive-focus');
+    expect(within(immersive).getByRole('timer', { name: /已专注/ })).toHaveAttribute('data-animation', 'flipclock');
+    expect(within(immersive).getAllByRole('timer')).toHaveLength(1);
+  });
   it('starts with only the timer visible and reveals controls on tap', async () => {
     const user = userEvent.setup();
     render(<App />);

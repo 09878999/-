@@ -215,7 +215,7 @@ export function SettingsPanel({
                 className={`animation-option${timerAnimation === option.id ? ' is-selected' : ''}`}
                 onClick={() => onTimerAnimationChange(option.id)}
               >
-                <span className={`animation-preview preview-${option.id}`}>88:88</span>
+                <span className={`animation-preview preview-${option.id}`}>{option.id === 'flipclock' ? '00 00 00' : '88:88'}</span>
                 <strong>{option.label}</strong>
                 <small>{option.description}</small>
               </button>

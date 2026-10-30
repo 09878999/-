@@ -1,3 +1,4 @@
+import { FlipClockTimer } from './FlipClockTimer';
 import { formatTimer } from '../lib/time';
 import type { TimerAnimation } from '../types';
 
@@ -8,6 +9,10 @@ interface AnimatedTimerProps {
 }
 
 export function AnimatedTimer({ elapsedMs, animation, className = '' }: AnimatedTimerProps) {
+  if (animation === 'flipclock') {
+    return <FlipClockTimer elapsedMs={elapsedMs} className={className} />;
+  }
+
   const value = formatTimer(elapsedMs);
   return (
     <div
