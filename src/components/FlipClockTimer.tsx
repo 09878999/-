@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface FlipUnitProps {
   value: string;
@@ -12,17 +12,18 @@ function FlipUnit({ value, label, unit }: FlipUnitProps) {
   const [flipping, setFlipping] = useState(false);
   const displayRef = useRef(value);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (value === displayRef.current) return;
     setPreviousValue(displayRef.current);
     displayRef.current = value;
     setDisplayValue(value);
-    setFlipping(true);
+    const reduceMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setFlipping(!reduceMotion);
   }, [value]);
 
   useEffect(() => {
     if (!flipping) return;
-    const finishTimer = window.setTimeout(() => setFlipping(false), 590);
+    const finishTimer = window.setTimeout(() => setFlipping(false), 530);
     return () => window.clearTimeout(finishTimer);
   }, [flipping]);
 
@@ -30,12 +31,11 @@ function FlipUnit({ value, label, unit }: FlipUnitProps) {
     <div className={`flip-unit${flipping ? ' is-flipping' : ''}`} data-unit={unit}>
       <div className="flip-card" data-digits={displayValue.length} aria-hidden="true">
         <div className="flip-half is-top"><span>{displayValue}</span></div>
-        <div className="flip-half is-bottom"><span>{displayValue}</span></div>
+        <div className="flip-half is-bottom"><span>{flipping ? previousValue : displayValue}</span></div>
 
         {flipping && (
           <>
             <div className="flip-half is-top flip-old-top"><span>{previousValue}</span></div>
-            <div className="flip-half is-bottom flip-old-bottom"><span>{previousValue}</span></div>
             <div className="flip-half is-bottom flip-new-bottom"><span>{displayValue}</span></div>
           </>
         )}
