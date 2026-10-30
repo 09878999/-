@@ -20,6 +20,7 @@ describe('app flow', () => {
     render(<App />);
 
     expect(await screen.findByRole('button', { name: /开始专注/ })).toBeInTheDocument();
+    expect(document.querySelector('.brand img.brand-mark')).toHaveAttribute('src', './app-icon.png');
     await user.click(screen.getByRole('button', { name: '记录' }));
     await user.click(await screen.findByRole('button', { name: /补记一笔/ }));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
@@ -36,5 +37,3 @@ describe('app flow', () => {
     expect(await db.sessions.count()).toBe(1);
   });
 });
-
-

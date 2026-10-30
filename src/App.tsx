@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BarChart3, BookOpen, Settings2, Target, Timer } from 'lucide-react';
+import { BrandMark } from './components/BrandMark';
 import { FocusPage } from './components/FocusPage';
 import { GoalsPage } from './components/GoalsPage';
 import { InsightsPage } from './components/InsightsPage';
@@ -119,7 +120,7 @@ export default function App() {
   if (data.loading) {
     return (
       <div className="app-loading">
-        <div className="brand-mark"><span /></div>
+        <BrandMark />
         <p>正在整理你的专注空间</p>
       </div>
     );
@@ -128,7 +129,7 @@ export default function App() {
   if (data.error) {
     return (
       <div className="app-loading app-error">
-        <div className="brand-mark"><span /></div>
+        <BrandMark />
         <h1>无法读取本地数据</h1>
         <p>{data.error}</p>
         <button type="button" className="button button-secondary" onClick={() => window.location.reload()}>重新加载</button>
@@ -140,7 +141,7 @@ export default function App() {
     <div className="app-shell">
       <aside className="app-sidebar">
         <div className="brand">
-          <div className="brand-mark"><span /></div>
+          <BrandMark />
           <div className="brand-copy">
             <strong>静时</strong>
             <small>STILL FOCUS</small>
