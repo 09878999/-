@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import type { ActiveSession, StudySession, Subject, TimerAnimation } from '../types';
+import { exitSystemFullscreen, enterSystemFullscreen, getFullscreenElement } from '../lib/fullscreen';
 import { formatDuration, formatTime, startOfDay } from '../lib/time';
 import { AnimatedTimer } from './AnimatedTimer';
 import { SubjectPills } from './SubjectPills';
@@ -168,7 +169,15 @@ export function FocusPage({
 }: FocusPageProps) {
   const [selectedSubjectId, setSelectedSubjectId] = useState(activeSession?.subjectId ?? subjects[0]?.id ?? '');
   const [immersive, setImmersive] = useState(false);
-  const exitImmersive = useCallback(() => setImmersive(false), []);
+  const exitImmersive = useCallback(() => {
+    setImmersive(false);
+    void exitSystemFullscreen();
+  }, []);
+
+  function enterImmersive() {
+    setImmersive(true);
+    void enterSystemFullscreen();
+  }
 
   useEffect(() => {
     if (activeSession) setSelectedSubjectId(activeSession.subjectId);
@@ -181,8 +190,24 @@ export function FocusPage({
   }, [selectedSubjectId, subjects]);
 
   useEffect(() => {
-    if (!activeSession) setImmersive(false);
-  }, [activeSession]);
+    if (!activeSession && immersive) {
+      setImmersive(false);
+      void exitSystemFullscreen();
+    }
+  }, [activeSession, immersive]);
+
+  useEffect(() => {
+    if (!immersive) return;
+    const handleFullscreenChange = () => {
+      if (!getFullscreenElement()) setImmersive(false);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, [immersive]);
 
   const todayStart = startOfDay(Date.now());
   const todaySessions = sessions.filter((session) => session.startedAt >= todayStart);
@@ -193,7 +218,7 @@ export function FocusPage({
   function beginFocus() {
     if (!selectedSubjectId) return;
     onStart(selectedSubjectId);
-    setImmersive(true);
+    enterImmersive();
   }
 
   return (
@@ -230,7 +255,7 @@ export function FocusPage({
                   <button
                     type="button"
                     className="fullscreen-button"
-                    onClick={() => setImmersive(true)}
+                    onClick={enterImmersive}
                     aria-label="进入全屏专注"
                   >
                     <Maximize2 size={15} />
